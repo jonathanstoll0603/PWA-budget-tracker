@@ -52,6 +52,7 @@ function checkDatabase() {
 
                 store.clear();
             })
+            .catch(err => console.error(err))
         }
     }
 }
