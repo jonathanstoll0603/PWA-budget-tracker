@@ -1,18 +1,19 @@
+const STATIC_CACHE = "static-cache-v2";
+const RUNTIME_CACHE = "data-cache-v1";
+
 const FILES_TO_CACHE = [
-    "/",
-    "/index.html",
-    "/index.js",
-    "/db.js",
-    "/styles.css",
-    "/manifest.webmanifest",
-    "/icons/icon-192x192.png",
-    "/icons/icon-512x512.png"
-  ];
+  "/",
+  "./index.html",
+  "./index.js",
+  "./db.js",
+  "./styles.css",
+  "./manifest.webmanifest",
+  "./icons/icon-192x192.png",
+  "./icons/icon-512x512.png"
+];
   
-  const STATIC_CACHE = "static-cache-v1";
-  const RUNTIME_CACHE = "runtime-cache";
   
-  self.addEventListener("install", event => {
+  self.addEventListener("install", function(event) {
     event.waitUntil(
       caches
         .open(STATIC_CACHE)
@@ -21,7 +22,7 @@ const FILES_TO_CACHE = [
     );
   });
   
-  self.addEventListener("activate", event => {
+  self.addEventListener("activate", function(event) {
     const currentCaches = [STATIC_CACHE, RUNTIME_CACHE];
     event.waitUntil(
       caches
@@ -42,7 +43,8 @@ const FILES_TO_CACHE = [
     );
   });
   
-  self.addEventListener("fetch", event => {
+  self.addEventListener("fetch", function(event) {
+
     if (
       event.request.method !== "GET" ||
       !event.request.url.startsWith(self.location.origin)
@@ -51,26 +53,31 @@ const FILES_TO_CACHE = [
       return;
     }
   
-    if (event.request.url.includes("/api/transaction/bulk")) {
+    if (event.request.url.includes("/api/transaction")) {
       event.respondWith(
-        caches.open(RUNTIME_CACHE).then(cache => {
+        caches.open(RUNTIME_CACHE).then(cache => {  
           return fetch(event.request)
             .then(response => {
-              cache.put(event.request, response.clone());
+
+              if (response.status === 200) {
+                cache.put(event.request, response.clone());
+              }
               return response;
             })
             .catch(() => caches.match(event.request));
         })
+        .catch(err => console.log(err))
       );
       return;
-    }
-  
+    } 
+
     event.respondWith(
       caches.match(event.request).then(cachedResponse => {
         if (cachedResponse) {
           return cachedResponse;
         }
   
+        // request is not in cache. make network request and cache the response
         return caches.open(RUNTIME_CACHE).then(cache => {
           return fetch(event.request).then(response => {
             return cache.put(event.request, response.clone()).then(() => {
@@ -80,4 +87,5 @@ const FILES_TO_CACHE = [
         });
       })
     );
+     
   });
