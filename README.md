@@ -1,7 +1,7 @@
 # PWA-budget-tracker
 PWA Budget Tracker is a performance web application (PWA) that allows users to track expenses and deposits both on and offline for on-the-go travellers.
 
-[Deployed Heroku Application](https://github.com/jonathanstoll0603/PWA-budget-tracker)
+[Deployed Heroku Application](https://vast-crag-09121.herokuapp.com/)
 
 ---
     
